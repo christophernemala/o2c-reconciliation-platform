@@ -174,20 +174,26 @@ const similarityScore = (a, b) => {
   return (jac * 0.6 + levScore * 0.4);
 };
 
+const normalizeHeader = (header) => header.trim().toLowerCase();
+
 const detectMapping = (headers, dictionary) => {
   const map = {};
+  const normalizedHeaders = headers.map((header) => ({
+    original: header,
+    normalized: normalizeHeader(header)
+  }));
   Object.keys(dictionary).forEach((key) => {
     const synonyms = dictionary[key];
-    const match = headers.find((header) =>
-      synonyms.some((syn) => header.includes(syn))
+    const match = normalizedHeaders.find((header) =>
+      synonyms.some((syn) => header.normalized.includes(syn))
     );
-    if (match) map[key] = match;
+    if (match) map[key] = match.original;
   });
   return map;
 };
 
 const headersFromRows = (rows) =>
-  rows.length ? Object.keys(rows[0]).map((h) => h.trim().toLowerCase()) : [];
+  rows.length ? Object.keys(rows[0]).map((h) => h.trim()) : [];
 
 const openModal = (modal) => {
   modal.hidden = false;
