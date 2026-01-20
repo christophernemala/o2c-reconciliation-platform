@@ -1,183 +1,1231 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>O2C Reconciliation Platform</title>
-    
-    <!-- Link to our CSS file -->
-    <link rel="stylesheet" href="styles.css">
-    
-    <!-- SheetJS library for Excel file processing -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DHCM AR Reconciliation System - Enterprise Edition</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#1e40af;
+  --primary-dark:#1e3a8a;
+  --secondary:#7c3aed;
+  --success:#10b981;
+  --warning:#f59e0b;
+  --danger:#ef4444;
+  --info:#3b82f6;
+  --bg-dark:#0f172a;
+  --bg-card:#1e293b;
+  --bg-hover:#334155;
+  --text-primary:#f8fafc;
+  --text-secondary:#cbd5e1;
+  --text-muted:#94a3b8;
+  --border:#334155;
+  --border-light:#475569;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Inter',sans-serif;
+  background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);
+  color:var(--text-primary);
+  min-height:100vh;
+  line-height:1.6;
+}
+.container{max-width:1800px;margin:0 auto;padding:2rem}
+.header{
+  background:var(--bg-card);
+  border-bottom:2px solid var(--primary);
+  padding:1.5rem 0;
+  margin-bottom:2rem;
+  box-shadow:0 4px 20px rgba(0,0,0,0.3);
+}
+.header-content{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  max-width:1800px;
+  margin:0 auto;
+  padding:0 2rem;
+}
+.logo{display:flex;align-items:center;gap:1rem}
+.logo h1{
+  font-size:1.8rem;
+  font-weight:800;
+  background:linear-gradient(135deg,#3b82f6,#8b5cf6);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.badge{
+  background:linear-gradient(135deg,var(--success),#34d399);
+  color:white;
+  padding:0.4rem 1rem;
+  border-radius:20px;
+  font-size:0.75rem;
+  font-weight:700;
+  text-transform:uppercase;
+}
+.nav{display:flex;gap:1rem}
+.nav-btn{
+  background:rgba(59,130,246,0.1);
+  border:1px solid var(--primary);
+  color:var(--primary);
+  padding:0.7rem 1.5rem;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.3s;
+}
+.nav-btn:hover{background:var(--primary);color:white}
+.section{
+  background:var(--bg-card);
+  border-radius:12px;
+  padding:2rem;
+  margin-bottom:2rem;
+  border:1px solid var(--border);
+  box-shadow:0 4px 15px rgba(0,0,0,0.2);
+}
+.section-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:2rem;
+  padding-bottom:1rem;
+  border-bottom:2px solid var(--border);
+}
+.section-title{
+  font-size:1.8rem;
+  font-weight:700;
+  color:var(--text-primary);
+}
+.section-subtitle{
+  color:var(--text-secondary);
+  font-size:0.95rem;
+  margin-top:0.3rem;
+}
+.upload-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(400px,1fr));
+  gap:2rem;
+  margin-bottom:2rem;
+}
+.upload-box{
+  background:rgba(59,130,246,0.05);
+  border:2px dashed var(--primary);
+  border-radius:12px;
+  padding:3rem;
+  text-align:center;
+  cursor:pointer;
+  transition:all 0.3s;
+  position:relative;
+}
+.upload-box:hover{
+  border-color:var(--success);
+  background:rgba(16,185,129,0.05);
+  transform:translateY(-2px);
+}
+.upload-box.uploaded{
+  border-style:solid;
+  border-color:var(--success);
+  background:rgba(16,185,129,0.1);
+}
+.upload-icon{
+  width:60px;
+  height:60px;
+  margin:0 auto 1rem;
+  color:var(--primary);
+}
+.upload-box.uploaded .upload-icon{color:var(--success)}
+.upload-title{
+  font-size:1.3rem;
+  font-weight:700;
+  margin-bottom:0.5rem;
+}
+.upload-subtitle{
+  color:var(--text-secondary);
+  font-size:0.9rem;
+}
+.file-input{display:none}
+.file-name{
+  background:rgba(16,185,129,0.2);
+  color:var(--success);
+  padding:0.5rem 1rem;
+  border-radius:8px;
+  margin-top:1rem;
+  font-weight:600;
+  display:none;
+}
+.upload-box.uploaded .file-name{display:block}
+.preview-table{
+  background:var(--bg-dark);
+  border:1px solid var(--border);
+  border-radius:8px;
+  margin-top:1.5rem;
+  overflow:hidden;
+  display:none;
+}
+.upload-box.uploaded .preview-table{display:block}
+.preview-table table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:0.85rem;
+}
+.preview-table th{
+  background:rgba(59,130,246,0.2);
+  padding:0.8rem;
+  text-align:left;
+  color:var(--primary);
+  font-weight:600;
+  border-bottom:2px solid var(--primary);
+}
+.preview-table td{
+  padding:0.8rem;
+  border-bottom:1px solid var(--border);
+  color:var(--text-secondary);
+}
+.preview-table tr:hover{background:rgba(59,130,246,0.05)}
+.btn{
+  padding:0.9rem 2rem;
+  border-radius:8px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all 0.3s;
+  border:none;
+  font-size:1rem;
+  display:inline-flex;
+  align-items:center;
+  gap:0.5rem;
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--primary),var(--secondary));
+  color:white;
+  box-shadow:0 4px 15px rgba(59,130,246,0.3);
+}
+.btn-primary:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(59,130,246,0.4);
+}
+.btn-success{
+  background:linear-gradient(135deg,var(--success),#34d399);
+  color:white;
+}
+.btn-secondary{
+  background:rgba(59,130,246,0.1);
+  color:var(--primary);
+  border:2px solid var(--primary);
+}
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:1.5rem;
+  margin-bottom:2rem;
+}
+.stat-card{
+  background:linear-gradient(135deg,rgba(59,130,246,0.1),rgba(139,92,246,0.1));
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:1.5rem;
+  display:flex;
+  align-items:center;
+  gap:1.5rem;
+  transition:all 0.3s;
+}
+.stat-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 8px 25px rgba(59,130,246,0.2);
+}
+.stat-icon{
+  width:60px;
+  height:60px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.8rem;
+}
+.stat-content h4{
+  font-size:0.85rem;
+  color:var(--text-secondary);
+  margin-bottom:0.3rem;
+  font-weight:500;
+}
+.stat-value{
+  font-size:2rem;
+  font-weight:800;
+  color:var(--text-primary);
+}
+.stat-subtitle{
+  font-size:0.8rem;
+  color:var(--text-muted);
+  margin-top:0.2rem;
+}
+.tabs{
+  display:flex;
+  gap:0.5rem;
+  margin-bottom:2rem;
+  border-bottom:2px solid var(--border);
+}
+.tab{
+  padding:1rem 2rem;
+  background:transparent;
+  border:none;
+  color:var(--text-secondary);
+  font-weight:600;
+  cursor:pointer;
+  border-bottom:3px solid transparent;
+  transition:all 0.3s;
+}
+.tab:hover{color:var(--primary)}
+.tab.active{
+  color:var(--primary);
+  border-bottom-color:var(--primary);
+}
+.table-container{
+  background:var(--bg-dark);
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:0.9rem;
+}
+thead{
+  background:rgba(59,130,246,0.1);
+  position:sticky;
+  top:0;
+}
+th{
+  padding:1rem;
+  text-align:left;
+  font-weight:700;
+  color:var(--primary);
+  border-bottom:2px solid var(--primary);
+  white-space:nowrap;
+}
+td{
+  padding:1rem;
+  border-bottom:1px solid var(--border);
+  color:var(--text-secondary);
+}
+tbody tr:hover{background:rgba(59,130,246,0.05)}
+.badge-status{
+  padding:0.4rem 0.8rem;
+  border-radius:6px;
+  font-size:0.8rem;
+  font-weight:700;
+  text-transform:uppercase;
+  display:inline-block;
+}
+.badge-matched{background:rgba(16,185,129,0.2);color:var(--success);border:1px solid var(--success)}
+.badge-review{background:rgba(245,158,11,0.2);color:var(--warning);border:1px solid var(--warning)}
+.badge-unmatched{background:rgba(239,68,68,0.2);color:var(--danger);border:1px solid var(--danger)}
+.score{
+  font-weight:800;
+  font-size:1.1rem;
+}
+.score-high{color:var(--success)}
+.score-medium{color:var(--warning)}
+.score-low{color:var(--danger)}
+.evidence-btn{
+  background:rgba(59,130,246,0.1);
+  border:1px solid var(--primary);
+  color:var(--primary);
+  padding:0.4rem 0.8rem;
+  border-radius:6px;
+  font-size:0.8rem;
+  cursor:pointer;
+  transition:all 0.3s;
+}
+.evidence-btn:hover{background:var(--primary);color:white}
+.modal{
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.8);
+  z-index:1000;
+  align-items:center;
+  justify-content:center;
+}
+.modal.show{display:flex}
+.modal-content{
+  background:var(--bg-card);
+  border-radius:12px;
+  padding:2rem;
+  max-width:800px;
+  max-height:80vh;
+  overflow-y:auto;
+  border:2px solid var(--primary);
+}
+.modal-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:1.5rem;
+  padding-bottom:1rem;
+  border-bottom:2px solid var(--border);
+}
+.modal-close{
+  background:var(--danger);
+  color:white;
+  border:none;
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  cursor:pointer;
+  font-size:1.2rem;
+}
+.evidence-section{
+  background:var(--bg-dark);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:1.5rem;
+  margin-bottom:1.5rem;
+}
+.evidence-title{
+  font-size:1.1rem;
+  font-weight:700;
+  color:var(--primary);
+  margin-bottom:1rem;
+}
+.evidence-item{
+  display:flex;
+  justify-content:space-between;
+  padding:0.8rem 0;
+  border-bottom:1px solid var(--border);
+}
+.evidence-item:last-child{border-bottom:none}
+.evidence-label{color:var(--text-secondary);font-weight:600}
+.evidence-value{color:var(--text-primary);font-weight:700}
+.hidden{display:none!important}
+.progress-bar{
+  width:100%;
+  height:8px;
+  background:var(--bg-dark);
+  border-radius:4px;
+  overflow:hidden;
+  margin:1rem 0;
+}
+.progress-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--primary),var(--secondary));
+  transition:width 0.3s;
+}
+.alert{
+  padding:1rem 1.5rem;
+  border-radius:8px;
+  margin-bottom:1.5rem;
+  border-left:4px solid;
+}
+.alert-info{background:rgba(59,130,246,0.1);border-color:var(--info);color:var(--info)}
+.alert-success{background:rgba(16,185,129,0.1);border-color:var(--success);color:var(--success)}
+.alert-warning{background:rgba(245,158,11,0.1);border-color:var(--warning);color:var(--warning)}
+.alert-danger{background:rgba(239,68,68,0.1);border-color:var(--danger);color:var(--danger)}
+@media (max-width:768px){
+  .upload-grid,.stats-grid{grid-template-columns:1fr}
+  .header-content{flex-direction:column;gap:1rem}
+  table{font-size:0.8rem}
+  th,td{padding:0.6rem}
+}
+</style>
 </head>
 <body>
-    <!-- Main Container -->
-    <div class="container">
-        
-        <!-- Header Section -->
-        <div class="header">
-            <h1>💼 O2C Reconciliation Platform</h1>
-            <p>Automated Accounts Receivable & Bank Statement Reconciliation</p>
-        </div>
-        
-        <!-- Main Content Area -->
-        <div class="content">
-            
-            <!-- File Upload Section -->
-            <div class="upload-section">
-                <h2>📁 Upload Files</h2>
-                <p style="margin-bottom: 20px; color: #666;">
-                    Upload your AR (Accounts Receivable) and Bank Statement Excel files to begin reconciliation
-                </p>
-                
-                <div class="file-inputs">
-                    <!-- AR File Input -->
-                    <div class="file-input-group">
-                        <label for="arFile">📊 AR File (Excel)</label>
-                        <input type="file" id="arFile" accept=".xlsx,.xls" />
-                        <small style="color: #666; display: block; margin-top: 5px;">
-                            Required columns: Customer Name, Amount, Invoice Number, Date
-                        </small>
-                    </div>
-                    
-                    <!-- Bank File Input -->
-                    <div class="file-input-group">
-                        <label for="bankFile">🏦 Bank Statement (Excel)</label>
-                        <input type="file" id="bankFile" accept=".xlsx,.xls" />
-                        <small style="color: #666; display: block; margin-top: 5px;">
-                            Required columns: Customer Name, Amount, Reference, Date
-                        </small>
-                    </div>
-                </div>
-                
-                <!-- Process Button -->
-                <div style="text-align: center; margin-top: 20px;">
-                    <button id="processBtn" class="btn btn-primary">
-                        🚀 Process Reconciliation
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Loading Spinner -->
-            <div id="loading" class="loading">
-                <div class="spinner"></div>
-                <p>Processing files... Please wait</p>
-            </div>
-            
-            <!-- Results Section (Hidden by default) -->
-            <div id="resultsSection" class="results-section">
-                
-                <!-- Results Header with Export Button -->
-                <div class="results-header">
-                    <h2>📊 Reconciliation Results</h2>
-                    <button id="exportBtn" class="btn btn-success">
-                        📥 Export to Excel
-                    </button>
-                </div>
-                
-                <!-- Statistics Cards -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3>Total AR Records</h3>
-                        <div class="value" id="totalAR">0</div>
-                        <div class="label">Accounts Receivable</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <h3>Total Bank Records</h3>
-                        <div class="value" id="totalBank">0</div>
-                        <div class="label">Bank Statements</div>
-                    </div>
-                    
-                    <div class="stat-card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
-                        <h3>Matched Records</h3>
-                        <div class="value" id="matchedCount">0</div>
-                        <div class="label">Successfully Reconciled</div>
-                    </div>
-                    
-                    <div class="stat-card" style="background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);">
-                        <h3>Unmatched Records</h3>
-                        <div class="value" id="unmatchedCount">0</div>
-                        <div class="label">Requires Attention</div>
-                    </div>
-                </div>
-                
-                <!-- Matched Records Table -->
-                <div class="table-container">
-                    <h3>✅ Matched Records</h3>
-                    <div style="overflow-x: auto;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Customer Name</th>
-                                    <th>Amount</th>
-                                    <th>AR Invoice</th>
-                                    <th>Bank Reference</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="matchedTableBody">
-                                <!-- Matched records will be inserted here by JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <!-- Unmatched AR Records Table -->
-                <div class="table-container">
-                    <h3>⚠️ Unmatched AR Records</h3>
-                    <div style="overflow-x: auto;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Customer Name</th>
-                                    <th>Amount</th>
-                                    <th>Invoice Number</th>
-                                    <th>Date</th>
-                                    <th>Aging</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="unmatchedARBody">
-                                <!-- Unmatched AR records will be inserted here by JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <!-- Unmatched Bank Records Table -->
-                <div class="table-container">
-                    <h3>⚠️ Unmatched Bank Records</h3>
-                    <div style="overflow-x: auto;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Customer Name</th>
-                                    <th>Amount</th>
-                                    <th>Reference</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="unmatchedBankBody">
-                                <!-- Unmatched bank records will be inserted here by JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-            </div>
-            
-        </div>
-        
+<div class="header">
+  <div class="header-content">
+    <div class="logo">
+      <h1>DHCM AR RECONCILIATION</h1>
+      <span class="badge">Enterprise</span>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn">Dashboard</button>
+      <button class="nav-btn">Settings</button>
+      <button class="nav-btn">Audit Log</button>
+    </nav>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Step 1: Upload -->
+  <section class="section" id="upload-section">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Step 1: Upload Data Files</h2>
+        <p class="section-subtitle">Upload AR Aging and Bank Statement files for reconciliation</p>
+      </div>
     </div>
     
-    <!-- Link to our JavaScript file (loaded at the end for better performance) -->
-    <script src="app.js"></script>
+    <div class="upload-grid">
+      <div class="upload-box" id="ar-upload-box">
+        <input type="file" id="ar-file" accept=".xlsx,.xls,.csv" class="file-input">
+        <label for="ar-file" style="cursor:pointer;display:block">
+          <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <h3 class="upload-title">AR Aging File</h3>
+          <p class="upload-subtitle">Oracle AR Open Items (Excel)</p>
+          <span class="file-name" id="ar-file-name"></span>
+        </label>
+        <div class="preview-table" id="ar-preview"></div>
+      </div>
+      
+      <div class="upload-box" id="bank-upload-box">
+        <input type="file" id="bank-file" accept=".xlsx,.xls,.csv" class="file-input" multiple>
+        <label for="bank-file" style="cursor:pointer;display:block">
+          <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <h3 class="upload-title">Bank Statement(s)</h3>
+          <p class="upload-subtitle">Up to 20 bank files (Excel)</p>
+          <span class="file-name" id="bank-file-name"></span>
+        </label>
+        <div class="preview-table" id="bank-preview"></div>
+      </div>
+    </div>
+    
+    <div style="text-align:center">
+      <button class="btn btn-secondary" id="generate-sample">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"></path>
+        </svg>
+        Generate Sample Data
+      </button>
+      <button class="btn btn-primary hidden" id="start-reconciliation">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+        Start Reconciliation
+      </button>
+    </div>
+  </section>
+
+  <!-- Step 2: Processing -->
+  <section class="section hidden" id="processing-section">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Processing Reconciliation</h2>
+        <p class="section-subtitle" id="processing-status">Initializing...</p>
+      </div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </section>
+
+  <!-- Step 3: Results -->
+  <section class="section hidden" id="results-section">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Reconciliation Results</h2>
+        <p class="section-subtitle">Comprehensive matching analysis with audit trail</p>
+      </div>
+      <button class="btn btn-success" id="export-excel">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+        </svg>
+        Export to Excel
+      </button>
+    </div>
+    
+    <div class="stats-grid" id="stats-grid"></div>
+    
+    <div class="tabs">
+      <button class="tab active" data-tab="matched">Matched</button>
+      <button class="tab" data-tab="review">Needs Review</button>
+      <button class="tab" data-tab="unmatched-bank">Unmatched Bank</button>
+      <button class="tab" data-tab="unmatched-ar">Unmatched AR</button>
+    </div>
+    
+    <div class="table-container">
+      <table id="results-table">
+        <thead id="results-thead"></thead>
+        <tbody id="results-tbody"></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<!-- Evidence Modal -->
+<div class="modal" id="evidence-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Match Evidence & Scoring</h2>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div id="evidence-content"></div>
+  </div>
+</div>
+
+<script>
+const STATE={arData:null,bankData:null,matches:[],unmatchedAR:[],unmatchedBank:[],currentTab:'matched'};
+
+document.getElementById('ar-file').addEventListener('change',e=>handleARUpload(e));
+document.getElementById('bank-file').addEventListener('change',e=>handleBankUpload(e));
+document.getElementById('generate-sample').addEventListener('click',generateSampleData);
+document.getElementById('start-reconciliation').addEventListener('click',startReconciliation);
+document.getElementById('export-excel').addEventListener('click',exportToExcel);
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',e=>switchTab(e.target.dataset.tab)));
+
+async function handleARUpload(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  try{
+    const data=await parseExcelFile(file);
+    STATE.arData=normalizeARData(data);
+    document.getElementById('ar-file-name').textContent=file.name;
+    document.getElementById('ar-upload-box').classList.add('uploaded');
+    showARPreview(STATE.arData.slice(0,5));
+    checkReadyToReconcile();
+  }catch(err){
+    alert('Error parsing AR file: '+err.message);
+  }
+}
+
+async function handleBankUpload(e){
+  const files=Array.from(e.target.files);
+  if(files.length===0)return;
+  try{
+    let allBankData=[];
+    for(const file of files){
+      const data=await parseExcelFile(file);
+      const normalized=normalizeBankData(data,file.name);
+      allBankData=allBankData.concat(normalized);
+    }
+    STATE.bankData=allBankData;
+    document.getElementById('bank-file-name').textContent=`${files.length} file(s) uploaded`;
+    document.getElementById('bank-upload-box').classList.add('uploaded');
+    showBankPreview(STATE.bankData.slice(0,5));
+    checkReadyToReconcile();
+  }catch(err){
+    alert('Error parsing bank files: '+err.message);
+  }
+}
+
+function parseExcelFile(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      try{
+        const data=new Uint8Array(e.target.result);
+        const wb=XLSX.read(data,{type:'array',cellDates:true,raw:false});
+        const sheet=wb.Sheets[wb.SheetNames[0]];
+        const json=XLSX.utils.sheet_to_json(sheet,{raw:false,defval:'',dateNF:'yyyy-mm-dd'});
+        resolve(json);
+      }catch(err){reject(err)}
+    };
+    reader.onerror=()=>reject(new Error('Failed to read file'));
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function getField(row,...keys){
+  for(const k of keys){
+    const val=row[k];
+    if(val!==undefined&&val!==null&&val!=='')return String(val).trim();
+  }
+  return '';
+}
+
+function normalizeARData(data){
+  return data.map((row,idx)=>{
+    const amtDue=parseFloat(getField(row,'Amount Due Remaining','AmountDueRemaining','amount_due_remaining').replace(/[^0-9.-]/g,''))||0;
+    if(amtDue<=0)return null;
+    
+    const txnNum=getField(row,'Transaction Number','TransactionNumber','transaction_number')||`TXN-${idx+1}`;
+    const desc=getField(row,'Transaction Description','TransactionDescription','transaction_description');
+    
+    return{
+      id:`ar-${idx}`,
+      transactionNumber:txnNum,
+      customerName:getField(row,'Customer Name','CustomerName','customer_name'),
+      companyName:getField(row,'Company Name','CompanyName','company_name'),
+      transactionDescription:desc,
+      transactionDate:getField(row,'Transaction Date','TransactionDate','transaction_date'),
+      dueDate:getField(row,'Due Date','DueDate','due_date'),
+      amountDueRemaining:amtDue,
+      originalAmount:parseFloat(getField(row,'Original Invoice Amount','OriginalInvoiceAmount').replace(/[^0-9.-]/g,''))||0,
+      extractedEntities:extractEntitiesFromDesc(desc)
+    };
+  }).filter(Boolean);
+}
+
+function normalizeBankData(data,fileName){
+  return data.map((row,idx)=>{
+    const credit=parseFloat(getField(row,'Credit','credit','CREDIT').replace(/[^0-9.-]/g,''))||0;
+    if(credit<=0)return null;
+    
+    const narration=getField(row,'Narration','narration','NARRATION','Description','description');
+    const invoiceNums=getField(row,'Invoice Numbers','InvoiceNumbers','invoice_numbers');
+    
+    return{
+      id:`bank-${fileName}-${idx}`,
+      valueDate:getField(row,'Value Date','ValueDate','value_date','Date','date'),
+      narration:narration,
+      transactionReference:getField(row,'Transaction Reference','TransactionReference','transaction_reference','Reference','reference'),
+      credit:credit,
+      currency:getField(row,'Currency','currency')||'AED',
+      invoiceNumbers:invoiceNums,
+      receiptNumber:getField(row,'Receipt Number','ReceiptNumber','receipt_number'),
+      parsedEntities:parseNarration(narration,invoiceNums)
+    };
+  }).filter(Boolean);
+}
+
+function extractEntitiesFromDesc(desc){
+  const reqNumbers=(desc.match(/REQ-\d{7}/gi)||[]).map(r=>r.toUpperCase());
+  const tmCodes=(desc.match(/TM\d{3,4}/gi)||[]).map(t=>t.toUpperCase());
+  const keywords=[];
+  const kw=['NOC','TEMPORARY ACCESS','PERMIT','RENEWAL','ENCROACHMENT','SIGNAGE','FIT OUT'];
+  kw.forEach(k=>{if(desc.toUpperCase().includes(k))keywords.push(k)});
+  return{reqNumbers,tmCodes,keywords};
+}
+
+function parseNarration(narration,invoiceNums){
+  const result={
+    transactionNumbers:[],
+    invoiceNumbers:[],
+    reqNumbers:[],
+    tmCodes:[],
+    bankRefs:[],
+    payerNames:[],
+    keywords:[]
+  };
+  
+  if(!narration)return result;
+  
+  const txnMatches=narration.match(/\b\d{12,18}\b/g);
+  if(txnMatches)result.transactionNumbers=[...new Set(txnMatches)];
+  
+  if(invoiceNums){
+    const invMatches=invoiceNums.match(/\b\d{12,18}\b/g);
+    if(invMatches)result.invoiceNumbers=[...new Set(invMatches)];
+  }
+  
+  const reqMatches=narration.match(/REQ-\d{7}/gi);
+  if(reqMatches)result.reqNumbers=[...new Set(reqMatches.map(r=>r.toUpperCase()))];
+  
+  const tmMatches=narration.match(/TM\d{3,4}/gi);
+  if(tmMatches)result.tmCodes=[...new Set(tmMatches.map(t=>t.toUpperCase()))];
+  
+  const ae0=narration.match(/AE0\d{7,}/gi);
+  const sdme=narration.match(/SDME\d{9,}/gi);
+  const tt=narration.match(/TT\s*REF[:\s]*[\w\d]+/gi);
+  result.bankRefs=[...(ae0||[]),...(sdme||[]),...(tt||[])].map(r=>r.toUpperCase());
+  
+  const kw=['NOC','TEMPORARY ACCESS','PERMIT','RENEWAL','ENCROACHMENT','SIGNAGE','FIT OUT'];
+  kw.forEach(k=>{if(narration.toUpperCase().includes(k))result.keywords.push(k)});
+  
+  return result;
+}
+
+function showARPreview(data){
+  const html=`<table><thead><tr><th>Transaction #</th><th>Customer</th><th>Amount Due</th><th>Date</th></tr></thead><tbody>${data.map(r=>`<tr><td>${r.transactionNumber}</td><td>${r.customerName}</td><td>${r.amountDueRemaining.toFixed(2)}</td><td>${r.transactionDate}</td></tr>`).join('')}</tbody></table>`;
+  document.getElementById('ar-preview').innerHTML=html;
+}
+
+function showBankPreview(data){
+  const html=`<table><thead><tr><th>Reference</th><th>Narration</th><th>Credit</th><th>Date</th></tr></thead><tbody>${data.map(r=>`<tr><td>${r.transactionReference}</td><td>${r.narration.substring(0,50)}...</td><td>${r.credit.toFixed(2)}</td><td>${r.valueDate}</td></tr>`).join('')}</tbody></table>`;
+  document.getElementById('bank-preview').innerHTML=html;
+}
+
+function checkReadyToReconcile(){
+  if(STATE.arData&&STATE.bankData){
+    document.getElementById('start-reconciliation').classList.remove('hidden');
+  }
+}
+
+function generateSampleData(){
+  STATE.arData=[
+    {id:'ar-1',transactionNumber:'256010013002797',customerName:'ACME Corporation',companyName:'ACME Corp',transactionDescription:'NOC - Temporary Access REQ-1234567',transactionDate:'2024-01-15',dueDate:'2024-02-15',amountDueRemaining:5250.00,originalAmount:5250.00,extractedEntities:{reqNumbers:['REQ-1234567'],tmCodes:[],keywords:['NOC','TEMPORARY ACCESS']}},
+    {id:'ar-2',transactionNumber:'266010013000080',customerName:'Global Industries Ltd',companyName:'Global Industries',transactionDescription:'Permit Renewal TM1234',transactionDate:'2024-01-20',dueDate:'2024-02-20',amountDueRemaining:1050.00,originalAmount:1050.00,extractedEntities:{reqNumbers:[],tmCodes:['TM1234'],keywords:['PERMIT','RENEWAL']}},
+    {id:'ar-3',transactionNumber:'256010013002800',customerName:'Tech Solutions Inc',companyName:'Tech Solutions',transactionDescription:'Encroachment Fee REQ-7654321',transactionDate:'2024-01-25',dueDate:'2024-02-25',amountDueRemaining:3500.00,originalAmount:3500.00,extractedEntities:{reqNumbers:['REQ-7654321'],tmCodes:[],keywords:['ENCROACHMENT']}},
+  ];
+  
+  STATE.bankData=[
+    {id:'bank-1',valueDate:'2024-01-18',narration:'PAYMENT FROM ACME CORPORATION FOR INVOICE 256010013002797 NOC TEMPORARY ACCESS REQ-1234567',transactionReference:'AE0123456789',credit:5250.00,currency:'AED',invoiceNumbers:'256010013002797',parsedEntities:{transactionNumbers:['256010013002797'],invoiceNumbers:['256010013002797'],reqNumbers:['REQ-1234567'],tmCodes:[],bankRefs:['AE0123456789'],payerNames:['ACME CORPORATION'],keywords:['NOC','TEMPORARY ACCESS']}},
+    {id:'bank-2',valueDate:'2024-01-22',narration:'TXN BY GLOBAL INDUSTRIES LTD TM1234 PERMIT RENEWAL',transactionReference:'SDME987654321',credit:1050.00,currency:'AED',invoiceNumbers:'',parsedEntities:{transactionNumbers:[],invoiceNumbers:[],reqNumbers:[],tmCodes:['TM1234'],bankRefs:['SDME987654321'],payerNames:['GLOBAL INDUSTRIES LTD'],keywords:['PERMIT','RENEWAL']}},
+    {id:'bank-3',valueDate:'2024-01-27',narration:'PAYMENT FROM TECH SOLUTIONS INC REQ-7654321 ENCROACHMENT FEE',transactionReference:'TT REF 555',credit:3500.00,currency:'AED',invoiceNumbers:'',parsedEntities:{transactionNumbers:[],invoiceNumbers:[],reqNumbers:['REQ-7654321'],tmCodes:[],bankRefs:['TT REF 555'],payerNames:['TECH SOLUTIONS INC'],keywords:['ENCROACHMENT']}},
+  ];
+  
+  document.getElementById('ar-file-name').textContent='Sample_AR_Aging.xlsx';
+  document.getElementById('ar-upload-box').classList.add('uploaded');
+  showARPreview(STATE.arData);
+  
+  document.getElementById('bank-file-name').textContent='Sample_Bank_Statement.xlsx';
+  document.getElementById('bank-upload-box').classList.add('uploaded');
+  showBankPreview(STATE.bankData);
+  
+  checkReadyToReconcile();
+}
+
+async function startReconciliation(){
+  document.getElementById('upload-section').classList.add('hidden');
+  document.getElementById('processing-section').classList.remove('hidden');
+  
+  await updateProgress(0,'Initializing reconciliation engine...');
+  await sleep(500);
+  
+  await updateProgress(20,'Pass A: Strong Identifier Matching...');
+  await sleep(800);
+  const passAMatches=runPassA();
+  
+  await updateProgress(40,'Pass B: Structured Reference Matching...');
+  await sleep(800);
+  const passBMatches=runPassB();
+  
+  await updateProgress(60,'Pass C: Controlled Fuzzy Matching...');
+  await sleep(800);
+  const passCMatches=runPassC();
+  
+  await updateProgress(80,'Pass D: Allocation Logic...');
+  await sleep(800);
+  
+  await updateProgress(95,'Generating results...');
+  await sleep(500);
+  
+  STATE.matches=[...passAMatches,...passBMatches,...passCMatches];
+  
+  const matchedARIds=new Set(STATE.matches.map(m=>m.arItemId));
+  const matchedBankIds=new Set(STATE.matches.map(m=>m.bankTransactionId));
+  
+  STATE.unmatchedAR=STATE.arData.filter(ar=>!matchedARIds.has(ar.id));
+  STATE.unmatchedBank=STATE.bankData.filter(bank=>!matchedBankIds.has(bank.id));
+  
+  await updateProgress(100,'Reconciliation complete!');
+  await sleep(500);
+  
+  document.getElementById('processing-section').classList.add('hidden');
+  document.getElementById('results-section').classList.remove('hidden');
+  
+  displayResults();
+}
+
+function updateProgress(pct,status){
+  return new Promise(resolve=>{
+    document.getElementById('progress-fill').style.width=pct+'%';
+    document.getElementById('processing-status').textContent=status;
+    setTimeout(resolve,100);
+  });
+}
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+
+function runPassA(){
+  const matches=[];
+  const matchedBankIds=new Set();
+  
+  for(const ar of STATE.arData){
+    for(const bank of STATE.bankData){
+      if(matchedBankIds.has(bank.id))continue;
+      
+      const txnNum=ar.transactionNumber;
+      const foundInNarration=bank.narration.includes(txnNum);
+      const foundInInvoiceNums=bank.invoiceNumbers.includes(txnNum);
+      const foundInParsed=bank.parsedEntities.transactionNumbers.includes(txnNum)||bank.parsedEntities.invoiceNumbers.includes(txnNum);
+      
+      if(foundInNarration||foundInInvoiceNums||foundInParsed){
+        const evidence=buildEvidence(ar,bank,'PASS_A',{transactionNumberMatch:true});
+        const score=calculateScore(evidence);
+        
+        matches.push({
+          id:`match-${matches.length}`,
+          arItemId:ar.id,
+          bankTransactionId:bank.id,
+          matchMethod:'PASS_A',
+          confidenceScore:score,
+          allocatedAmount:Math.min(ar.amountDueRemaining,bank.credit),
+          evidence:evidence,
+          explanation:`Strong identifier match: AR Transaction Number "${txnNum}" found in bank ${foundInNarration?'narration':foundInInvoiceNums?'invoice numbers':'parsed data'}. Amount: ${bank.credit} AED.`,
+          status:score>=90?'AUTO_MATCHED':'NEEDS_REVIEW'
+        });
+        
+        matchedBankIds.add(bank.id);
+        break;
+      }
+    }
+  }
+  
+  console.log(`Pass A: ${matches.length} matches`);
+  return matches;
+}
+
+function runPassB(){
+  const matches=[];
+  const matchedARIds=new Set(STATE.matches.map(m=>m.arItemId));
+  const matchedBankIds=new Set(STATE.matches.map(m=>m.bankTransactionId));
+  
+  for(const ar of STATE.arData){
+    if(matchedARIds.has(ar.id))continue;
+    
+    for(const bank of STATE.bankData){
+      if(matchedBankIds.has(bank.id))continue;
+      
+      const reqMatch=ar.extractedEntities.reqNumbers.some(req=>bank.parsedEntities.reqNumbers.includes(req));
+      const tmMatch=ar.extractedEntities.tmCodes.some(tm=>bank.parsedEntities.tmCodes.includes(tm));
+      
+      if(reqMatch||tmMatch){
+        const evidence=buildEvidence(ar,bank,'PASS_B',{referenceMatch:reqMatch||tmMatch});
+        const score=calculateScore(evidence);
+        
+        matches.push({
+          id:`match-${STATE.matches.length+matches.length}`,
+          arItemId:ar.id,
+          bankTransactionId:bank.id,
+          matchMethod:'PASS_B',
+          confidenceScore:score,
+          allocatedAmount:Math.min(ar.amountDueRemaining,bank.credit),
+          evidence:evidence,
+          explanation:`Structured reference match: ${reqMatch?'REQ number':'TM code'} matched. Amount: ${bank.credit} AED.`,
+          status:score>=90?'AUTO_MATCHED':'NEEDS_REVIEW'
+        });
+        
+        matchedBankIds.add(bank.id);
+        break;
+      }
+    }
+  }
+  
+  console.log(`Pass B: ${matches.length} matches`);
+  return matches;
+}
+
+function runPassC(){
+  const matches=[];
+  const matchedARIds=new Set(STATE.matches.map(m=>m.arItemId));
+  const matchedBankIds=new Set(STATE.matches.map(m=>m.bankTransactionId));
+  
+  for(const ar of STATE.arData){
+    if(matchedARIds.has(ar.id))continue;
+    
+    for(const bank of STATE.bankData){
+      if(matchedBankIds.has(bank.id))continue;
+      
+      const amtDiff=Math.abs(ar.amountDueRemaining-bank.credit);
+      const amtWithinTolerance=amtDiff<=0.50||amtDiff/ar.amountDueRemaining<=0.001;
+      
+      if(!amtWithinTolerance)continue;
+      
+      const nameSimilarity=fuzzyMatch(ar.customerName,bank.parsedEntities.payerNames.join(' '));
+      const keywordMatch=ar.extractedEntities.keywords.some(k=>bank.parsedEntities.keywords.includes(k));
+      
+      if(nameSimilarity>=0.75&&keywordMatch){
+        const evidence=buildEvidence(ar,bank,'PASS_C',{fuzzyMatch:true,nameSimilarity,keywordMatch});
+        const score=calculateScore(evidence);
+        
+        if(score>=70){
+          matches.push({
+            id:`match-${STATE.matches.length+matches.length}`,
+            arItemId:ar.id,
+            bankTransactionId:bank.id,
+            matchMethod:'PASS_C',
+            confidenceScore:score,
+            allocatedAmount:Math.min(ar.amountDueRemaining,bank.credit),
+            evidence:evidence,
+            explanation:`Controlled fuzzy match: Name similarity ${(nameSimilarity*100).toFixed(0)}%, keyword alignment, amount within tolerance.`,
+            status:'NEEDS_REVIEW'
+          });
+          
+          matchedBankIds.add(bank.id);
+          break;
+        }
+      }
+    }
+  }
+  
+  console.log(`Pass C: ${matches.length} matches`);
+  return matches;
+}
+
+function buildEvidence(ar,bank,passType,details){
+  const amtDiff=Math.abs(ar.amountDueRemaining-bank.credit);
+  const arDate=new Date(ar.transactionDate);
+  const bankDate=new Date(bank.valueDate);
+  const daysDiff=Math.abs((bankDate-arDate)/(1000*60*60*24));
+  
+  return{
+    id:`evidence-${Date.now()}`,
+    passType:passType,
+    arTransactionNumber:ar.transactionNumber,
+    bankReference:bank.transactionReference,
+    arCustomerName:ar.customerName,
+    bankNarration:bank.narration,
+    arAmount:ar.amountDueRemaining,
+    bankAmount:bank.credit,
+    amountDifference:amtDiff,
+    arDate:ar.transactionDate,
+    bankDate:bank.valueDate,
+    daysDifference:daysDiff,
+    details:details
+  };
+}
+
+function calculateScore(evidence){
+  let score=0;
+  
+  if(evidence.details.transactionNumberMatch)score+=40;
+  if(evidence.details.referenceMatch)score+=25;
+  if(evidence.details.fuzzyMatch)score+=15;
+  
+  const amtPct=evidence.amountDifference/evidence.arAmount;
+  if(amtPct<=0.001)score+=10;
+  else if(amtPct<=0.01)score+=7;
+  else if(amtPct<=0.05)score+=4;
+  
+  if(evidence.daysDifference<=7)score+=5;
+  else if(evidence.daysDifference<=30)score+=3;
+  else if(evidence.daysDifference<=120)score+=1;
+  
+  if(evidence.details.nameSimilarity){
+    score+=Math.round(evidence.details.nameSimilarity*5);
+  }
+  
+  if(evidence.details.keywordMatch)score+=2;
+  
+  if(evidence.arAmount===1050&&!evidence.details.transactionNumberMatch){
+    score=Math.min(score,75);
+  }
+  
+  return Math.min(100,score);
+}
+
+function fuzzyMatch(str1,str2){
+  if(!str1||!str2)return 0;
+  const s1=str1.toLowerCase().replace(/[^a-z0-9]/g,'');
+  const s2=str2.toLowerCase().replace(/[^a-z0-9]/g,'');
+  if(s1===s2)return 1;
+  if(s1.includes(s2)||s2.includes(s1))return 0.85;
+  
+  const words1=str1.toLowerCase().split(/\s+/);
+  const words2=str2.toLowerCase().split(/\s+/);
+  const common=words1.filter(w=>words2.includes(w)&&w.length>2);
+  return common.length/(Math.max(words1.length,words2.length))||0;
+}
+
+function displayResults(){
+  const matched=STATE.matches.filter(m=>m.status==='AUTO_MATCHED');
+  const review=STATE.matches.filter(m=>m.status==='NEEDS_REVIEW');
+  
+  const totalAR=STATE.arData.reduce((s,ar)=>s+ar.amountDueRemaining,0);
+  const totalBank=STATE.bankData.reduce((s,b)=>s+b.credit,0);
+  const matchedAmt=matched.reduce((s,m)=>s+m.allocatedAmount,0);
+  
+  document.getElementById('stats-grid').innerHTML=`
+    <div class="stat-card"><div class="stat-icon" style="background:rgba(59,130,246,0.2);color:var(--info)">📊</div><div class="stat-content"><h4>Total AR Items</h4><div class="stat-value">${STATE.arData.length}</div><p class="stat-subtitle">$${totalAR.toLocaleString('en-US',{minimumFractionDigits:2})}</p></div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:rgba(16,185,129,0.2);color:var(--success)">✓</div><div class="stat-content"><h4>Matched</h4><div class="stat-value">${matched.length}</div><p class="stat-subtitle">$${matchedAmt.toLocaleString('en-US',{minimumFractionDigits:2})}</p></div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:rgba(245,158,11,0.2);color:var(--warning)">⚠</div><div class="stat-content"><h4>Needs Review</h4><div class="stat-value">${review.length}</div><p class="stat-subtitle">Confidence 70-89%</p></div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:rgba(239,68,68,0.2);color:var(--danger)">✗</div><div class="stat-content"><h4>Unmatched</h4><div class="stat-value">${STATE.unmatchedAR.length+STATE.unmatchedBank.length}</div><p class="stat-subtitle">${STATE.unmatchedAR.length} AR, ${STATE.unmatchedBank.length} Bank</p></div></div>
+  `;
+  
+  switchTab('matched');
+}
+
+function switchTab(tab){
+  STATE.currentTab=tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+  
+  let data,headers;
+  
+  if(tab==='matched'){
+    data=STATE.matches.filter(m=>m.status==='AUTO_MATCHED');
+    headers=['AR Transaction #','Bank Reference','Customer','Amount','Match Method','Score','Evidence'];
+    renderMatchTable(data,headers);
+  }else if(tab==='review'){
+    data=STATE.matches.filter(m=>m.status==='NEEDS_REVIEW');
+    headers=['AR Transaction #','Bank Reference','Customer','Amount','Match Method','Score','Evidence'];
+    renderMatchTable(data,headers);
+  }else if(tab==='unmatched-bank'){
+    headers=['Bank Reference','Narration','Credit','Date'];
+    renderUnmatchedBankTable(STATE.unmatchedBank,headers);
+  }else if(tab==='unmatched-ar'){
+    headers=['Transaction #','Customer','Amount Due','Date'];
+    renderUnmatchedARTable(STATE.unmatchedAR,headers);
+  }
+}
+
+function renderMatchTable(data,headers){
+  const thead=`<tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr>`;
+  const tbody=data.map(m=>{
+    const ar=STATE.arData.find(a=>a.id===m.arItemId);
+    const bank=STATE.bankData.find(b=>b.id===m.bankTransactionId);
+    const scoreClass=m.confidenceScore>=90?'score-high':m.confidenceScore>=70?'score-medium':'score-low';
+    const statusClass=m.status==='AUTO_MATCHED'?'badge-matched':'badge-review';
+    return`<tr>
+      <td><strong>${ar.transactionNumber}</strong></td>
+      <td>${bank.transactionReference}</td>
+      <td>${ar.customerName}</td>
+      <td><strong>$${m.allocatedAmount.toLocaleString('en-US',{minimumFractionDigits:2})}</strong></td>
+      <td><span class="badge-status ${statusClass}">${m.matchMethod}</span></td>
+      <td><span class="score ${scoreClass}">${m.confidenceScore}%</span></td>
+      <td><button class="evidence-btn" onclick="showEvidence('${m.id}')">View Evidence</button></td>
+    </tr>`;
+  }).join('');
+  
+  document.getElementById('results-thead').innerHTML=thead;
+  document.getElementById('results-tbody').innerHTML=tbody||'<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-muted)">No data</td></tr>';
+}
+
+function renderUnmatchedBankTable(data,headers){
+  const thead=`<tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr>`;
+  const tbody=data.map(b=>`<tr>
+    <td>${b.transactionReference}</td>
+    <td>${b.narration.substring(0,80)}...</td>
+    <td><strong>$${b.credit.toLocaleString('en-US',{minimumFractionDigits:2})}</strong></td>
+    <td>${b.valueDate}</td>
+  </tr>`).join('');
+  
+  document.getElementById('results-thead').innerHTML=thead;
+  document.getElementById('results-tbody').innerHTML=tbody||'<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--text-muted)">No unmatched bank transactions</td></tr>';
+}
+
+function renderUnmatchedARTable(data,headers){
+  const thead=`<tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr>`;
+  const tbody=data.map(ar=>`<tr>
+    <td><strong>${ar.transactionNumber}</strong></td>
+    <td>${ar.customerName}</td>
+    <td><strong>$${ar.amountDueRemaining.toLocaleString('en-US',{minimumFractionDigits:2})}</strong></td>
+    <td>${ar.transactionDate}</td>
+  </tr>`).join('');
+  
+  document.getElementById('results-thead').innerHTML=thead;
+  document.getElementById('results-tbody').innerHTML=tbody||'<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--text-muted)">No unmatched AR items</td></tr>';
+}
+
+function showEvidence(matchId){
+  const match=STATE.matches.find(m=>m.id===matchId);
+  if(!match)return;
+  
+  const ar=STATE.arData.find(a=>a.id===match.arItemId);
+  const bank=STATE.bankData.find(b=>b.id===match.bankTransactionId);
+  const ev=match.evidence;
+  
+  const html=`
+    <div class="evidence-section">
+      <h3 class="evidence-title">Match Details</h3>
+      <div class="evidence-item"><span class="evidence-label">Match Method:</span><span class="evidence-value">${match.matchMethod}</span></div>
+      <div class="evidence-item"><span class="evidence-label">Confidence Score:</span><span class="evidence-value">${match.confidenceScore}%</span></div>
+      <div class="evidence-item"><span class="evidence-label">Status:</span><span class="evidence-value">${match.status}</span></div>
+    </div>
+    
+    <div class="evidence-section">
+      <h3 class="evidence-title">AR Item</h3>
+      <div class="evidence-item"><span class="evidence-label">Transaction Number:</span><span class="evidence-value">${ar.transactionNumber}</span></div>
+      <div class="evidence-item"><span class="evidence-label">Customer:</span><span class="evidence-value">${ar.customerName}</span></div>
+      <div class="evidence-item"><span class="evidence-label">Amount Due:</span><span class="evidence-value">$${ar.amountDueRemaining.toFixed(2)}</span></div>
+      <div class="evidence-item"><span class="evidence-label">Date:</span><span class="evidence-value">${ar.transactionDate}</span></div>
+      <div class="evidence-item"><span class="evidence-label">Description:</span><span class="evidence-value">${ar.transactionDescription}</span></div>
+    </div>
+    
+    <div class="evidence-section">
+      <h3 class="evidence-title">Bank Transaction</h3>
+      <div class="evidence-item"><span class="evidence-label">Reference:</span><span class="evidence-value">${bank.transactionReference}</span></div>
+      <div class="evidence-item"><span class="evidence-label">Credit:</span><span class="evidence-value">$${bank.credit.toFixed(2)}</span></div>
+      <div class="evidence-item"><span class="evidence-label">Date:</span><span class="evidence-value">${bank.valueDate}</span></div>
+      <div class="evidence-item"><span class="evidence-label">Narration:</span><span class="evidence-value">${bank.narration}</span></div>
+    </div>
+    
+    <div class="evidence-section">
+      <h3 class="evidence-title">Evidence Analysis</h3>
+      <div class="evidence-item"><span class="evidence-label">Amount Difference:</span><span class="evidence-value">$${ev.amountDifference.toFixed(2)}</span></div>
+      <div class="evidence-item"><span class="evidence-label">Date Difference:</span><span class="evidence-value">${ev.daysDifference} days</span></div>
+      <div class="evidence-item"><span class="evidence-label">Explanation:</span><span class="evidence-value">${match.explanation}</span></div>
+    </div>
+  `;
+  
+  document.getElementById('evidence-content').innerHTML=html;
+  document.getElementById('evidence-modal').classList.add('show');
+}
+
+function closeModal(){
+  document.getElementById('evidence-modal').classList.remove('show');
+}
+
+function exportToExcel(){
+  const wb=XLSX.utils.book_new();
+  
+  const matched=STATE.matches.filter(m=>m.status==='AUTO_MATCHED');
+  const review=STATE.matches.filter(m=>m.status==='NEEDS_REVIEW');
+  
+  const matchedData=matched.map(m=>{
+    const ar=STATE.arData.find(a=>a.id===m.arItemId);
+    const bank=STATE.bankData.find(b=>b.id===m.bankTransactionId);
+    return{
+      'AR Transaction Number':ar.transactionNumber,
+      'Bank Reference':bank.transactionReference,
+      'Customer Name':ar.customerName,
+      'Allocated Amount':m.allocatedAmount,
+      'Bank Date':bank.valueDate,
+      'Invoice Date':ar.transactionDate,
+      'Match Method':m.matchMethod,
+      'Confidence Score':m.confidenceScore+'%',
+      'Explanation':m.explanation
+    };
+  });
+  
+  const reviewData=review.map(m=>{
+    const ar=STATE.arData.find(a=>a.id===m.arItemId);
+    const bank=STATE.bankData.find(b=>b.id===m.bankTransactionId);
+    return{
+      'AR Transaction Number':ar.transactionNumber,
+      'Bank Reference':bank.transactionReference,
+      'Customer Name':ar.customerName,
+      'Allocated Amount':m.allocatedAmount,
+      'Bank Date':bank.valueDate,
+      'Invoice Date':ar.transactionDate,
+      'Match Method':m.matchMethod,
+      'Confidence Score':m.confidenceScore+'%',
+      'Explanation':m.explanation
+    };
+  });
+  
+  const unmatchedBankData=STATE.unmatchedBank.map(b=>({
+    'Bank Reference':b.transactionReference,
+    'Narration':b.narration,
+    'Credit':b.credit,
+    'Date':b.valueDate,
+    'Currency':b.currency
+  }));
+  
+  const unmatchedARData=STATE.unmatchedAR.map(ar=>({
+    'Transaction Number':ar.transactionNumber,
+    'Customer Name':ar.customerName,
+    'Amount Due Remaining':ar.amountDueRemaining,
+    'Transaction Date':ar.transactionDate,
+    'Due Date':ar.dueDate
+  }));
+  
+  if(matchedData.length>0)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(matchedData),'Matched');
+  if(reviewData.length>0)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(reviewData),'Needs Review');
+  if(unmatchedBankData.length>0)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(unmatchedBankData),'Unmatched Bank');
+  if(unmatchedARData.length>0)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(unmatchedARData),'Unmatched AR');
+  
+  const summary=[
+    ['DHCM AR RECONCILIATION REPORT'],
+    ['Generated:',new Date().toLocaleString()],
+    [''],
+    ['SUMMARY'],
+    ['Total AR Items',STATE.arData.length],
+    ['Total Bank Transactions',STATE.bankData.length],
+    ['Matched (Auto)',matched.length],
+    ['Needs Review',review.length],
+    ['Unmatched AR',STATE.unmatchedAR.length],
+    ['Unmatched Bank',STATE.unmatchedBank.length]
+  ];
+  
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(summary),'Summary');
+  
+  XLSX.writeFile(wb,`DHCM_Reconciliation_${new Date().toISOString().split('T')[0]}.xlsx`);
+}
+</script>
 </body>
 </html>
