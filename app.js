@@ -1,188 +1,253 @@
-const STORAGE_KEY = 'aiJobAgentDataV1';
-const state = {
-  applications: [],
-  profile: {}
-};
+// Application State
+let applications = JSON.parse(localStorage.getItem('applications')) || [];
+let userProfile = JSON.parse(localStorage.getItem('userProfile')) || {};
+let currentFilter = 'all';
 
-function loadState() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (!saved) return;
-  try {
-    const parsed = JSON.parse(saved);
-    state.applications = parsed.applications || [];
-    state.profile = parsed.profile || {};
-  } catch {
-    state.applications = [];
-    state.profile = {};
-  }
+// Tab Navigation
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const target = btn.dataset.tab;
+        
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        btn.classList.add('active');
+        document.getElementById(target).classList.add('active');
+        
+        if (target === 'dashboard') renderDashboard();
+    });
+});
+
+// Application Form Submission
+const appForm = document.getElementById('applicationForm');
+if (appForm) {
+    appForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const newApp = {
+            id: Date.now().toString(),
+            appliedOn: document.getElementById('appliedOn').value,
+            platform: document.getElementById('platform').value,
+            company: document.getElementById('company').value,
+            role: document.getElementById('role').value,
+            status: document.getElementById('status').value,
+            notes: document.getElementById('notes').value
+        };
+        
+        applications.push(newApp);
+        localStorage.setItem('applications', JSON.stringify(applications));
+        
+        appForm.reset();
+        renderApplications();
+        alert('Application added successfully!');
+    });
 }
 
-function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+// Profile Form Submission
+const profileForm = document.getElementById('profileForm');
+if (profileForm) {
+    profileForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        userProfile = {
+            name: document.getElementById('name').value,
+            currentRole: document.getElementById('currentRole').value,
+            skills: document.getElementById('skills').value,
+            achievements: document.getElementById('achievements').value
+        };
+        
+        localStorage.setItem('userProfile', JSON.stringify(userProfile));
+        alert('Profile saved successfully!');
+    });
 }
 
-function switchTab(tabId) {
-  document.querySelectorAll('.tab').forEach(tab => {
-    tab.classList.toggle('active', tab.dataset.tab === tabId);
-  });
-  document.querySelectorAll('.panel').forEach(panel => {
-    panel.classList.toggle('active', panel.id === tabId);
-  });
-}
-
-function statusClass(status) {
-  return status.toLowerCase().replaceAll(' ', '-');
-}
-
-function renderApplications() {
-  const body = document.getElementById('applicationTableBody');
-  const search = document.getElementById('searchInput').value.toLowerCase();
-  const platformFilter = document.getElementById('platformFilter').value;
-  const statusFilter = document.getElementById('statusFilter').value;
-
-  const rows = state.applications.filter(app => {
-    const haystack = `${app.company} ${app.role} ${app.location || ''}`.toLowerCase();
-    const matchesSearch = haystack.includes(search);
-    const matchesPlatform = platformFilter === 'all' || app.platform === platformFilter;
-    const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
-    return matchesSearch && matchesPlatform && matchesStatus;
-  });
-
-  body.innerHTML = rows.map(app => `
-    <tr>
-      <td>${app.appliedOn}</td>
-      <td>${app.platform}</td>
-      <td>${app.company}</td>
-      <td>${app.role}</td>
-      <td><span class="badge ${statusClass(app.status)}">${app.status}</span></td>
-      <td><button class="btn secondary" onclick="removeApplication('${app.id}')">Delete</button></td>
-    </tr>
-  `).join('');
-}
-
-function renderDashboard() {
-  const total = state.applications.length;
-  const interview = state.applications.filter(a => a.status === 'Interview').length;
-  const offer = state.applications.filter(a => a.status === 'Offer').length;
-  const responded = state.applications.filter(a => ['Under Review', 'Interview', 'Offer'].includes(a.status)).length;
-  const responseRate = total ? Math.round((responded / total) * 100) : 0;
-
-  document.getElementById('totalApplications').textContent = total;
-  document.getElementById('interviewCount').textContent = interview;
-  document.getElementById('offerCount').textContent = offer;
-  document.getElementById('responseRate').textContent = `${responseRate}%`;
-
-  const pipelineStatuses = ['Applied', 'Under Review', 'Interview', 'Offer', 'Rejected'];
-  const pipelineHtml = pipelineStatuses.map(status => {
-    const count = state.applications.filter(a => a.status === status).length;
-    const width = total ? (count / total) * 100 : 0;
-    return `<div class="pipeline-row"><strong>${status}</strong><div class="bar-wrap"><div class="bar" style="width:${width}%"></div></div><span>${count}</span></div>`;
-  }).join('');
-  document.getElementById('pipelineBars').innerHTML = pipelineHtml;
-
-  const recent = [...state.applications]
-    .sort((a, b) => new Date(b.appliedOn) - new Date(a.appliedOn))
-    .slice(0, 5);
-
-  document.getElementById('recentTableBody').innerHTML = recent.map(app => `
-    <tr><td>${app.appliedOn}</td><td>${app.platform}</td><td>${app.company}</td><td>${app.role}</td><td>${app.status}</td></tr>
-  `).join('');
-}
-
-function fillProfileForm() {
-  const fields = ['fullName', 'email', 'phone', 'experience', 'skills', 'achievements'];
-  fields.forEach(key => {
-    if (state.profile[key]) document.getElementById(key).value = state.profile[key];
-  });
-}
-
-function removeApplication(id) {
-  state.applications = state.applications.filter(app => app.id !== id);
-  saveState();
-  renderApplications();
-  renderDashboard();
-}
-window.removeApplication = removeApplication;
-
-function generateCoverLetter() {
-  const profile = state.profile;
-  const company = document.getElementById('targetCompany').value || 'Hiring Team';
-  const role = document.getElementById('targetRole').value || 'the role';
-  const jobDescription = document.getElementById('jobDescription').value;
-  const companyValues = document.getElementById('companyValues').value;
-
-  return `Dear ${company} Recruitment Team,\n\nI am excited to apply for ${role}. With ${profile.experience || 'several'} years of experience, I have delivered measurable outcomes in ${profile.skills || 'core business functions'}.\n\nMy relevant achievements include:\n${profile.achievements || '- Led high-impact initiatives across teams.'}\n\nI am particularly drawn to your team because: ${companyValues || 'your commitment to innovation and execution excellence'}.\n\nBased on the job requirements, I can contribute immediately in:\n${jobDescription || '- Stakeholder collaboration\n- Data-driven execution\n- Process optimization'}\n\nThank you for considering my application.\n\nSincerely,\n${profile.fullName || 'Candidate'}`;
-}
-
-function generateTailoredResumeSummary() {
-  const profile = state.profile;
-  const role = document.getElementById('targetRole').value || 'target role';
-  const description = document.getElementById('jobDescription').value;
-  const skills = (profile.skills || '').split(',').map(s => s.trim()).filter(Boolean);
-
-  return `Professional Summary\n${profile.fullName || 'Candidate'} is a results-focused professional with ${profile.experience || 'multiple'} years of experience, targeting ${role}.\n\nCore Skills\n${skills.length ? skills.map(s => `• ${s}`).join('\n') : '• Cross-functional collaboration\n• Project execution\n• Analytical problem solving'}\n\nTailored Positioning\n${description || 'Align experience with the role by emphasizing customer impact, measurable achievements, and ownership.'}\n\nHighlighted Achievement\n${profile.achievements || 'Drove continuous improvement initiatives that improved performance metrics and stakeholder satisfaction.'}`;
-}
-
-function bindEvents() {
-  document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', () => switchTab(tab.dataset.tab));
-  });
-
-  document.getElementById('applicationForm').addEventListener('submit', event => {
-    event.preventDefault();
-    const app = {
-      id: crypto.randomUUID(),
-      platform: document.getElementById('platform').value,
-      company: document.getElementById('company').value,
-      role: document.getElementById('role').value,
-      location: document.getElementById('location').value,
-      jobUrl: document.getElementById('jobUrl').value,
-      status: document.getElementById('status').value,
-      notes: document.getElementById('notes').value,
-      appliedOn: new Date().toISOString().slice(0, 10)
-    };
-    state.applications.unshift(app);
-    saveState();
-    event.target.reset();
+// Load Profile on Page Load
+window.addEventListener('DOMContentLoaded', () => {
+    if (userProfile.name) {
+        document.getElementById('name').value = userProfile.name || '';
+        document.getElementById('currentRole').value = userProfile.currentRole || '';
+        document.getElementById('skills').value = userProfile.skills || '';
+        document.getElementById('achievements').value = userProfile.achievements || '';
+    }
+    
     renderApplications();
     renderDashboard();
-  });
+});
 
-  ['searchInput', 'platformFilter', 'statusFilter'].forEach(id => {
-    document.getElementById(id).addEventListener('input', renderApplications);
-    document.getElementById(id).addEventListener('change', renderApplications);
-  });
+// Render Applications Table
+function renderApplications() {
+    const body = document.getElementById('applicationTableBody');
+    if (!body) return;
+    
+    const filtered = currentFilter === 'all' 
+        ? applications 
+        : applications.filter(app => app.status === currentFilter);
+    
+    if (filtered.length === 0) {
+        body.innerHTML = '<tr><td colspan="6" style="text-align:center;">No applications found</td></tr>';
+        return;
+    }
+    
+    body.innerHTML = filtered.map(app => `
+        <tr>
+            <td>${app.appliedOn}</td>
+            <td>${app.platform}</td>
+            <td>${app.company}</td>
+            <td>${app.role}</td>
+            <td><span class="status ${getStatusClass(app.status)}">${app.status}</span></td>
+            <td><button onclick="removeApplication('${app.id}')">Delete</button></td>
+        </tr>
+    `).join('');
+}
 
-  document.getElementById('profileForm').addEventListener('submit', event => {
-    event.preventDefault();
-    const fields = ['fullName', 'email', 'phone', 'experience', 'skills', 'achievements'];
-    fields.forEach(field => {
-      state.profile[field] = document.getElementById(field).value;
+// Remove Application
+window.removeApplication = function(id) {
+    if (confirm('Delete this application?')) {
+        applications = applications.filter(app => app.id !== id);
+        localStorage.setItem('applications', JSON.stringify(applications));
+        renderApplications();
+        renderDashboard();
+    }
+};
+
+// Filter Applications
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        currentFilter = btn.dataset.filter;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderApplications();
     });
-    saveState();
-  });
+});
 
-  document.getElementById('generateCoverBtn').addEventListener('click', () => {
-    document.getElementById('generatedOutput').value = generateCoverLetter();
-  });
-
-  document.getElementById('generateResumeBtn').addEventListener('click', () => {
-    document.getElementById('generatedOutput').value = generateTailoredResumeSummary();
-  });
-
-  document.getElementById('copyOutputBtn').addEventListener('click', async () => {
-    const text = document.getElementById('generatedOutput').value;
-    if (!text) return;
-    await navigator.clipboard.writeText(text);
-  });
+// Render Dashboard
+function renderDashboard() {
+    document.getElementById('totalApps').textContent = applications.length;
+    
+    const statusCounts = applications.reduce((acc, app) => {
+        acc[app.status] = (acc[app.status] || 0) + 1;
+        return acc;
+    }, {});
+    
+    document.getElementById('offersReceived').textContent = statusCounts['Offer'] || 0;
+    
+    const interviewCount = statusCounts['Interview'] || 0;
+    const responseRate = applications.length > 0 
+        ? Math.round((interviewCount / applications.length) * 100) 
+        : 0;
+    document.getElementById('responseRate').textContent = responseRate + '%';
+    
+    // Pipeline Bars
+    const pipeline = document.getElementById('pipelineBars');
+    if (pipeline) {
+        const stages = ['Applied', 'Under Review', 'Screening', 'Interview', 'Offer'];
+        pipeline.innerHTML = stages.map(stage => {
+            const count = statusCounts[stage] || 0;
+            return `
+                <div class="pipe-stage">
+                    <div class="pipe-label">${stage}</div>
+                    <div class="pipe-bar">
+                        <div class="pipe-fill" style="width: ${count * 20}%"></div>
+                    </div>
+                    <div class="pipe-count">${count}</div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    // Recent Applications
+    const recentBody = document.getElementById('recentTableBody');
+    if (recentBody) {
+        const recent = applications.slice(-5).reverse();
+        recentBody.innerHTML = recent.map(app => `
+            <tr>
+                <td>${app.appliedOn}</td>
+                <td>${app.platform}</td>
+                <td>${app.company}</td>
+                <td>${app.role}</td>
+                <td><span class="status ${getStatusClass(app.status)}">${app.status}</span></td>
+            </tr>
+        `).join('');
+    }
 }
 
-function init() {
-  loadState();
-  bindEvents();
-  fillProfileForm();
-  renderApplications();
-  renderDashboard();
+// Status Class Helper
+function getStatusClass(status) {
+    const statusMap = {
+        'Applied': 'status-applied',
+        'Under Review': 'status-review',
+        'Screening': 'status-screening',
+        'Interview': 'status-interview',
+        'Offer': 'status-offer',
+        'Rejected': 'status-rejected'
+    };
+    return statusMap[status] || '';
 }
 
-init();
+// AI Generator Functions
+document.getElementById('generateCoverBtn')?.addEventListener('click', () => {
+    const jd = document.getElementById('jobDescription').value;
+    const cv = document.getElementById('companyValues').value;
+    
+    if (!jd) {
+        alert('Please enter a job description');
+        return;
+    }
+    
+    const output = generateCoverLetter(jd, cv);
+    showOutput(output);
+});
+
+document.getElementById('generateResumeBtn')?.addEventListener('click', () => {
+    const jd = document.getElementById('jobDescription').value;
+    
+    if (!jd) {
+        alert('Please enter a job description');
+        return;
+    }
+    
+    const output = generateResumeSummary(jd);
+    showOutput(output);
+});
+
+function generateCoverLetter(jd, cv) {
+    return `Dear Hiring Manager,
+
+I am writing to express my strong interest in the position at your organization. With my background as a ${userProfile.currentRole || '[Your Role]'} and expertise in ${userProfile.skills || '[Your Skills]'}, I am confident I can contribute significantly to your team.
+
+${userProfile.achievements ? 'Key achievements include: ' + userProfile.achievements : ''}
+
+I am particularly excited about this opportunity because it aligns perfectly with my career goals and expertise. I look forward to discussing how my skills can benefit your organization.
+
+Best regards,
+${userProfile.name || '[Your Name]'}`;
+}
+
+function generateResumeSummary(jd) {
+    return `PROFESSIONAL SUMMARY
+
+${userProfile.currentRole || '[Your Current Role]'} with proven expertise in ${userProfile.skills || '[Your Skills]'}. 
+
+KEY SKILLS:
+${userProfile.skills?.split(',').map(s => `\u2022 ${s.trim()}`).join('\n') || '\u2022 [Add your skills]'}
+
+ACHIEVEMENTS:
+${userProfile.achievements?.split(',').map(a => `\u2022 ${a.trim()}`).join('\n') || '\u2022 [Add your achievements]'}`;
+}
+
+function showOutput(text) {
+    const outputPanel = document.getElementById('generatedOutput');
+    const outputText = document.getElementById('outputText');
+    
+    if (outputPanel && outputText) {
+        outputText.textContent = text;
+        outputPanel.style.display = 'block';
+    }
+}
+
+document.getElementById('copyOutputBtn')?.addEventListener('click', () => {
+    const outputText = document.getElementById('outputText').textContent;
+    navigator.clipboard.writeText(outputText).then(() => {
+        alert('Copied to clipboard!');
+    });
+});
