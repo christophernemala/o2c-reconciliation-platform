@@ -1,69 +1,132 @@
-# 💼 O2C Reconciliation Platform
+# 🎯 AI Job Application Tracker
 
-An automated tool for reconciling Accounts Receivable (AR) with Bank Statements. This platform helps you match invoices with bank payments quickly and accurately.
+**Track your job applications, generate AI-powered cover letters, and manage your job search efficiently!**
 
-## 🚀 Live Platform
+## 🌐 Live Website
 
-**🌐 Access the platform here:** https://christophernemala.github.io/o2c-reconciliation-platform/
-
-**🧪 Test page:** https://christophernemala.github.io/o2c-reconciliation-platform/test.html
+**Access the platform:** https://christophernemala.github.io/o2c-reconciliation-platform/
 
 ---
 
-## 📚 Documentation
+## ✨ What Does This Do?
 
-| Guide | Description |
-|-------|-------------|
-| [🎓 Beginner's Guide](BEGINNERS_GUIDE.md) | Learn coding basics and understand the code |
-| [📊 Sample Data Guide](SAMPLE_DATA_GUIDE.md) | Create test Excel files and learn data format |
-| [🔧 Troubleshooting](TROUBLESHOOTING.md) | Fix common issues and errors |
+This is a **Job Application Tracking System** that helps you:
 
----
-
-## 🌟 What Does This Do?
-
-This tool helps you:
-- ✅ **Upload** AR and Bank statement Excel files
-- ✅ **Automatically match** records based on customer name, amount, and date
-- ✅ **Identify** unmatched records that need attention
-- ✅ **Export** results to Excel for further analysis
-- ✅ **Calculate** aging for overdue invoices
+- ✅ **Track all job applications** in one place
+- ✅ **Monitor application status** (Applied, Interview, Offer, Rejected)
+- ✅ **Generate AI cover letters** tailored to job descriptions
+- ✅ **Create resume summaries** based on your profile
+- ✅ **View dashboard statistics** (total apps, offers, response rate)
+- ✅ **Export/Import data** for backup and portability
+- ✅ **Filter applications** by status
+- ✅ **Visualize pipeline** with progress bars
 
 ---
 
 ## 🚀 Quick Start (3 Steps)
 
-### Step 1: Prepare Your Excel Files
-
-**AR File should have these columns:**
-- Customer Name
-- Amount
-- Invoice Number
-- Date
-
-**Bank File should have these columns:**
-- Customer Name
-- Amount
-- Reference
-- Date
-
-📖 **Need sample files?** See [Sample Data Guide](SAMPLE_DATA_GUIDE.md)
-
-### Step 2: Upload and Process
+### Step 1: Set Up Your Profile
 
 1. Go to https://christophernemala.github.io/o2c-reconciliation-platform/
-2. Click "Upload AR File" and select your AR Excel file
-3. Click "Upload Bank File" and select your Bank Excel file
-4. Click "🚀 Process Reconciliation"
+2. Click the **"AI Studio"** tab
+3. Fill in your profile:
+   - Full Name
+   - Current Role
+   - Key Skills (comma-separated)
+   - Key Achievements (comma-separated)
+4. Click **"Save Profile"**
 
-### Step 3: Review and Export
+### Step 2: Add Job Applications
 
-The platform will show you:
-- ✅ **Matched Records**: Successfully reconciled transactions
-- ⚠️ **Unmatched AR**: Invoices without matching bank payments
-- ⚠️ **Unmatched Bank**: Bank payments without matching invoices
+1. Click the **"Applications DB"** tab
+2. Fill in the form:
+   - Date Applied
+   - Platform (LinkedIn, Naukri Gulf, etc.)
+   - Company Name
+   - Job Role
+   - Status (Applied, Interview, etc.)
+   - Notes (optional)
+3. Click **"Add Application"**
 
-Click "📥 Export to Excel" to download results.
+### Step 3: Generate AI Content
+
+1. Go to **"AI Studio"** tab
+2. Paste a job description
+3. Click **"Generate Cover Letter"** or **"Generate Tailored Resume"**
+4. Copy the generated text
+
+---
+
+## 📊 Features
+
+### 1. Dashboard
+- **Total Applications** - Count of all applications
+- **Offers Received** - Number of job offers
+- **Response Rate** - Percentage of applications that led to interviews
+- **Pipeline Visualization** - See applications at each stage
+- **Recent Applications** - Quick view of latest 5 applications
+
+### 2. Applications Database
+- **Add Applications** - Log new job applications
+- **Filter by Status** - View Applied, Interview, Offer, or Rejected
+- **Delete Applications** - Remove entries
+- **Export Data** - Download backup as JSON
+- **Import Data** - Restore from backup
+- **Clear All Data** - Reset everything (with confirmation)
+
+### 3. AI Studio
+- **Profile Management** - Save your info for AI generation
+- **Cover Letter Generator** - AI creates personalized cover letters
+- **Resume Summary Generator** - AI tailors your resume summary
+- **Copy to Clipboard** - Easy copying of generated content
+
+---
+
+## 💾 Data Storage
+
+### Where is Your Data Stored?
+
+Your data is stored in your **browser's localStorage**:
+- ✅ Stays on your computer only
+- ✅ Not sent to any server
+- ✅ Private and secure
+- ✅ Works offline after first load
+
+### Backup Your Data
+
+**Export Data:**
+1. Go to "Applications DB" tab
+2. Click **"📥 Export Data"**
+3. Save the JSON file somewhere safe
+
+**Import Data:**
+1. Click **"📤 Import Data"**
+2. Select your backup JSON file
+3. All data restored!
+
+---
+
+## 🔧 Technical Details
+
+### Technologies Used
+- **HTML5** - Structure
+- **CSS3** - Styling with modern design
+- **JavaScript (ES6+)** - Logic and functionality
+- **LocalStorage API** - Data persistence
+- **GitHub Pages** - Free hosting
+
+### Browser Support
+- ✅ Chrome (Recommended)
+- ✅ Firefox
+- ✅ Edge
+- ✅ Safari
+
+### No Backend Required
+- ❌ No server needed
+- ❌ No database needed
+- ❌ No web drivers (Selenium, etc.)
+- ❌ No complex setup
+- ✅ Just open and use!
 
 ---
 
@@ -72,156 +135,132 @@ Click "📥 Export to Excel" to download results.
 ```
 o2c-reconciliation-platform/
 │
-├── index.html              # Main webpage (structure)
-├── styles.css              # Styling (colors, layout, design)
-├── app.js                  # Logic (file processing, matching, calculations)
-├── test.html               # System test page
+├── index.html              # Main webpage structure
+├── styles.css              # Styling and design
+├── app.js                  # Application logic
 │
-├── README.md               # This file (main documentation)
-├── BEGINNERS_GUIDE.md      # Learning guide for beginners
-├── SAMPLE_DATA_GUIDE.md    # How to create test data
-└── TROUBLESHOOTING.md      # Fix common problems
+├── README.md               # This file
+├── BEGINNERS_GUIDE.md      # Learning guide (outdated)
+├── SAMPLE_DATA_GUIDE.md    # Sample data guide (outdated)
+└── TROUBLESHOOTING.md      # Troubleshooting guide (outdated)
+```
+
+**Note:** The BEGINNERS_GUIDE, SAMPLE_DATA_GUIDE, and TROUBLESHOOTING files are from an older version (invoice reconciliation) and are now outdated.
+
+---
+
+## 🎯 How to Use
+
+### Adding Your First Application
+
+1. **Go to Applications DB tab**
+2. **Fill in the form:**
+   ```
+   Date Applied: 2026-02-10
+   Platform: LinkedIn
+   Company: Google
+   Role: Software Engineer
+   Status: Applied
+   Notes: Applied through referral
+   ```
+3. **Click "Add Application"**
+4. **See it appear in the table below!**
+
+### Generating a Cover Letter
+
+1. **Set up your profile first** (AI Studio → Profile)
+2. **Copy a job description** from LinkedIn/Indeed
+3. **Paste it in "Job Description" field**
+4. **Click "Generate Cover Letter"**
+5. **Copy the generated letter**
+6. **Customize and send!**
+
+---
+
+## 🔄 How to Update/Modify
+
+### Option 1: Edit on GitHub (Easy)
+
+1. Go to https://github.com/christophernemala/o2c-reconciliation-platform
+2. Click on any file (e.g., `index.html`)
+3. Click the pencil icon (✏️ Edit)
+4. Make your changes
+5. Scroll down, add commit message
+6. Click "Commit changes"
+7. Wait 1-2 minutes → Website updates automatically!
+
+### Option 2: Edit Locally (Advanced)
+
+```bash
+# Clone the repository
+git clone https://github.com/christophernemala/o2c-reconciliation-platform.git
+
+# Make changes to files
+# Then push back to GitHub
+
+git add .
+git commit -m "Your changes"
+git push origin main
 ```
 
 ---
 
-## 🎯 How It Works
+## 🎨 Customization Ideas
 
-### Matching Algorithm
-
-The platform matches AR and Bank records when:
-
-1. **Customer Names Match** (case-insensitive)
-   - "ABC Corp" = "abc corp" ✅
-   - "ABC Corp" ≠ "ABC Corporation" ❌
-
-2. **Amounts Match** (within 1 cent tolerance)
-   - $1000.00 = $1000.01 ✅
-   - $1000.00 ≠ $1000.50 ❌
-
-3. **Dates Are Close** (within 7 days)
-   - Jan 10 and Jan 15 ✅
-   - Jan 10 and Jan 25 ❌
-
-### Processing Flow
-
-```
-Upload Files → Read Excel → Normalize Data → Match Records → Display Results → Export
+### Change Colors
+Edit `styles.css`:
+```css
+:root {
+  --bg: #070b1d;        /* Background color */
+  --accent: #4f7cff;    /* Accent color (buttons, etc.) */
+  --success: #33d69f;   /* Success color */
+  --danger: #ff6b6b;    /* Danger color */
+}
 ```
 
----
+### Add New Platforms
+Edit `index.html`, find the platform dropdown:
+```html
+<select id="platform" required>
+    <option value="LinkedIn">LinkedIn</option>
+    <option value="Indeed">Indeed</option>  <!-- Add this -->
+    <option value="Glassdoor">Glassdoor</option>  <!-- Add this -->
+</select>
+```
 
-## 🔧 Technical Details
-
-### Technologies Used
-- **HTML5** - Structure
-- **CSS3** - Styling with gradients and animations
-- **JavaScript (ES6+)** - Logic and processing
-- **SheetJS (XLSX)** - Excel file reading/writing
-- **GitHub Pages** - Hosting
-
-### Browser Support
-- ✅ Chrome (Recommended)
-- ✅ Firefox
-- ✅ Edge
-- ✅ Safari
-
-### File Requirements
-- Format: `.xlsx` or `.xls`
-- Max size: 10MB recommended
-- Encoding: UTF-8
-
----
-
-## 🎓 For Beginners - Learning Path
-
-### Week 1: Understanding
-1. Read [Beginner's Guide](BEGINNERS_GUIDE.md)
-2. Open each file and read comments
-3. Try to understand what each section does
-
-### Week 2: Experimenting
-1. Change colors in `styles.css`
-2. Modify text in `index.html`
-3. Adjust matching rules in `app.js`
-
-### Week 3: Learning
-1. Take course: https://www.freecodecamp.org/
-2. Watch: "JavaScript for Beginners" on YouTube
-3. Practice on: https://www.codecademy.com/
-
-### Week 4: Building
-1. Add new features
-2. Customize for your needs
-3. Share your improvements
-
----
-
-## 🛠️ How to Set Up GitHub Copilot (Optional)
-
-GitHub Copilot is an AI coding assistant. Here's how to get it:
-
-### Step 1: Subscribe
-1. Go to https://github.com/features/copilot
-2. Start free trial or buy ($10/month)
-
-### Step 2: Install VS Code
-1. Download from https://code.visualstudio.com/
-2. Install on your computer
-
-### Step 3: Add Copilot Extension
-1. Open VS Code
-2. Click Extensions (left sidebar)
-3. Search "GitHub Copilot"
-4. Install and sign in
-
-### Step 4: Use It
-- Type code and get suggestions
-- Write comments, get code
-- Press Tab to accept
+### Add New Status Options
+Edit `index.html`, find the status dropdown:
+```html
+<select id="status" required>
+    <option value="Applied">Applied</option>
+    <option value="Phone Screen">Phone Screen</option>  <!-- Add this -->
+    <option value="Technical Interview">Technical Interview</option>  <!-- Add this -->
+</select>
+```
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Platform won't load?
-- Check URL is correct
+### Website Won't Load?
+- Check URL: https://christophernemala.github.io/o2c-reconciliation-platform/
 - Clear browser cache (Ctrl+Shift+Delete)
 - Try different browser
 
-### Files won't upload?
-- Check file format (.xlsx or .xls)
-- Verify column names match requirements
-- Try smaller test files first
+### Data Disappeared?
+- Check if you're using the same browser
+- LocalStorage is browser-specific
+- Import your backup JSON file
 
-### No matches found?
-- Customer names must match exactly
-- Check amounts are within 1 cent
-- Verify dates are within 7 days
+### Buttons Not Working?
+- Check browser console (F12)
+- Look for JavaScript errors
+- Make sure JavaScript is enabled
 
-📖 **More help:** See [Troubleshooting Guide](TROUBLESHOOTING.md)
-
----
-
-## 📊 Sample Data
-
-Want to test the platform? Create these Excel files:
-
-**AR_Sample.xlsx:**
-```
-Customer Name | Amount  | Invoice Number | Date
-ABC Corp      | 5000.00 | INV-001       | 2026-01-10
-XYZ Ltd       | 3500.50 | INV-002       | 2026-01-12
-```
-
-**Bank_Sample.xlsx:**
-```
-Customer Name | Amount  | Reference     | Date
-ABC Corp      | 5000.00 | BANK-REF-001  | 2026-01-11
-XYZ Ltd       | 3500.50 | BANK-REF-002  | 2026-01-13
-```
-
-📖 **Full guide:** See [Sample Data Guide](SAMPLE_DATA_GUIDE.md)
+### AI Generator Not Working?
+- Make sure you saved your profile first
+- Enter a job description
+- Check that all required fields are filled
 
 ---
 
@@ -230,86 +269,89 @@ XYZ Ltd       | 3500.50 | BANK-REF-002  | 2026-01-13
 ✅ **Platform is LIVE and WORKING**
 
 - Main Platform: https://christophernemala.github.io/o2c-reconciliation-platform/
-- Test Page: https://christophernemala.github.io/o2c-reconciliation-platform/test.html
+- GitHub Repository: https://github.com/christophernemala/o2c-reconciliation-platform
+- GitHub Pages: Enabled
 - All files deployed successfully
-- GitHub Pages enabled
-- All tests passing
+- Auto-deploys on push to main branch
+
+---
+
+## 📝 FAQ
+
+### Q: Is this really free?
+**A:** Yes! GitHub Pages hosting is completely free.
+
+### Q: Can I use this for other tracking purposes?
+**A:** Yes! The code structure works for any tracking app (books, expenses, workouts, etc.). Just modify the data fields.
+
+### Q: Where is my data stored?
+**A:** In your browser's localStorage. It never leaves your computer.
+
+### Q: Can I access my data from another computer?
+**A:** Export your data as JSON, then import it on the other computer.
+
+### Q: Do I need web drivers or Selenium?
+**A:** No! This is a simple web app. No complex setup needed.
+
+### Q: Can I customize the AI generation?
+**A:** Yes! Edit the `generateCoverLetter()` and `generateResumeSummary()` functions in `app.js`.
+
+### Q: How do I backup my data?
+**A:** Click "📥 Export Data" button in the Applications DB tab.
+
+---
+
+## 🎓 Learning Resources
+
+Want to learn how this works?
+
+### Beginner-Friendly:
+- [FreeCodeCamp](https://www.freecodecamp.org/) - Free coding courses
+- [MDN Web Docs](https://developer.mozilla.org/) - HTML/CSS/JavaScript reference
+- [JavaScript.info](https://javascript.info/) - Modern JavaScript tutorial
+
+### Video Tutorials:
+- "HTML & CSS for Beginners" on YouTube
+- "JavaScript Full Course" by freeCodeCamp
+- "LocalStorage Tutorial" by Web Dev Simplified
 
 ---
 
 ## 📞 Support
-
-### Documentation
-- [Beginner's Guide](BEGINNERS_GUIDE.md) - Learn the code
-- [Sample Data Guide](SAMPLE_DATA_GUIDE.md) - Create test files
-- [Troubleshooting](TROUBLESHOOTING.md) - Fix issues
 
 ### Contact
 - **Email:** christophernemala@gmail.com
 - **GitHub Issues:** Report bugs or request features
 - **GitHub Repo:** https://github.com/christophernemala/o2c-reconciliation-platform
 
-### Learning Resources
-- **freeCodeCamp:** https://www.freecodecamp.org/
-- **MDN Web Docs:** https://developer.mozilla.org/
-- **W3Schools:** https://www.w3schools.com/
+---
+
+## 📜 License
+
+This project is open source. Feel free to use, modify, and share!
 
 ---
 
-## 📄 License
+## 🎉 Credits
 
-Free to use and modify for your needs.
+Built by Christopher Nemala with assistance from AI (ChatGPT/Codex).
 
----
-
-## 🎉 Quick Links
-
-| Link | Purpose |
-|------|---------|
-| [🌐 Live Platform](https://christophernemala.github.io/o2c-reconciliation-platform/) | Use the tool |
-| [🧪 Test Page](https://christophernemala.github.io/o2c-reconciliation-platform/test.html) | Verify it works |
-| [🎓 Learn](BEGINNERS_GUIDE.md) | Understand the code |
-| [📊 Sample Data](SAMPLE_DATA_GUIDE.md) | Create test files |
-| [🔧 Fix Issues](TROUBLESHOOTING.md) | Solve problems |
+**Note:** This project was initially started as an invoice reconciliation tool but was repurposed as a job application tracker. Some old documentation files may still reference the original purpose.
 
 ---
 
-**Made with ❤️ for learning and automation**
+## 🔮 Future Enhancements
 
-*Remember: Everyone starts as a beginner. Keep learning, keep coding!* 🚀
-
----
-
-## ⭐ Features
-
-- ✨ Beautiful, modern UI with gradients
-- 📱 Responsive design (works on mobile)
-- ⚡ Fast processing with client-side logic
-- 🔒 Secure (no data sent to servers)
-- 💾 Export results to Excel
-- 📊 Visual statistics and charts
-- 🎨 Color-coded status badges
-- 📈 Aging calculation for overdue invoices
-- 🔍 Detailed reconciliation reports
+Ideas for future versions:
+- [ ] Email reminders for follow-ups
+- [ ] Integration with LinkedIn API
+- [ ] Advanced analytics and charts
+- [ ] Mobile app version
+- [ ] Cloud sync option
+- [ ] Interview preparation notes
+- [ ] Salary tracking
+- [ ] Company research notes
 
 ---
 
-## 🔄 Updates
-
-**Latest Version:** 2.0 (January 2026)
-
-**Recent Changes:**
-- ✅ Split code into separate files (HTML, CSS, JS)
-- ✅ Added comprehensive comments
-- ✅ Created beginner's guide
-- ✅ Added sample data guide
-- ✅ Created troubleshooting guide
-- ✅ Added test page
-- ✅ Improved error handling
-- ✅ Enhanced documentation
-
----
-
-**🎯 Ready to start? Visit the platform now!**
-
-👉 https://christophernemala.github.io/o2c-reconciliation-platform/
+**Happy Job Hunting! 🚀**
