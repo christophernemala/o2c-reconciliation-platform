@@ -229,10 +229,10 @@ function generateResumeSummary(jd) {
 ${userProfile.currentRole || '[Your Current Role]'} with proven expertise in ${userProfile.skills || '[Your Skills]'}. 
 
 KEY SKILLS:
-${userProfile.skills?.split(',').map(s => `\u2022 ${s.trim()}`).join('\n') || '\u2022 [Add your skills]'}
+${userProfile.skills?.split(',').map(s => `• ${s.trim()}`).join('\n') || '• [Add your skills]'}
 
 ACHIEVEMENTS:
-${userProfile.achievements?.split(',').map(a => `\u2022 ${a.trim()}`).join('\n') || '\u2022 [Add your achievements]'}`;
+${userProfile.achievements?.split(',').map(a => `• ${a.trim()}`).join('\n') || '• [Add your achievements]'}`;
 }
 
 function showOutput(text) {
@@ -249,5 +249,84 @@ document.getElementById('copyOutputBtn')?.addEventListener('click', () => {
     const outputText = document.getElementById('outputText').textContent;
     navigator.clipboard.writeText(outputText).then(() => {
         alert('Copied to clipboard!');
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy. Please copy manually.');
     });
 });
+
+// Export Data Functions
+document.getElementById('exportDataBtn')?.addEventListener('click', () => {
+    const dataStr = JSON.stringify({
+        applications: applications,
+        userProfile: userProfile,
+        exportDate: new Date().toISOString()
+    }, null, 2);
+    
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `job-tracker-backup-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+});
+
+// Import Data Functions
+document.getElementById('importDataBtn')?.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const data = JSON.parse(event.target.result);
+                
+                if (data.applications) {
+                    applications = data.applications;
+                    localStorage.setItem('applications', JSON.stringify(applications));
+                }
+                
+                if (data.userProfile) {
+                    userProfile = data.userProfile;
+                    localStorage.setItem('userProfile', JSON.stringify(userProfile));
+                }
+                
+                renderApplications();
+                renderDashboard();
+                alert('Data imported successfully!');
+                location.reload();
+            } catch (err) {
+                console.error('Import error:', err);
+                alert('Failed to import data. Please check the file format.');
+            }
+        };
+        reader.readAsText(file);
+    };
+    
+    input.click();
+});
+
+// Clear All Data
+document.getElementById('clearDataBtn')?.addEventListener('click', () => {
+    if (confirm('Are you sure you want to delete ALL data? This cannot be undone!')) {
+        if (confirm('Really delete everything? Last chance!')) {
+            localStorage.clear();
+            applications = [];
+            userProfile = {};
+            renderApplications();
+            renderDashboard();
+            alert('All data cleared!');
+            location.reload();
+        }
+    }
+});
+
+// Initialize on load
+console.log('Job Application Tracker loaded successfully!');
+console.log(`Total applications: ${applications.length}`);
