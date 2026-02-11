@@ -10,9 +10,16 @@ from pathlib import Path
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+
+try:
+    from webdriver_manager.chrome import ChromeDriverManager
+    WEBDRIVER_MANAGER_AVAILABLE = True
+except ImportError:
+    WEBDRIVER_MANAGER_AVAILABLE = False
 
 from job_agent.config import get_naukri_gulf_credentials
 
@@ -26,13 +33,21 @@ class AuthResult:
 
 
 def setup_selenium_driver(headless: bool = True) -> webdriver.Chrome:
+    """Set up Chrome driver with automatic ChromeDriver management."""
     options = Options()
     if headless:
         options.add_argument("--headless=new")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--window-size=1440,1080")
-    return webdriver.Chrome(options=options)
+    
+    # Use webdriver-manager if available, otherwise use system ChromeDriver
+    if WEBDRIVER_MANAGER_AVAILABLE:
+        service = Service(ChromeDriverManager().install())
+        return webdriver.Chrome(service=service, options=options)
+    else:
+        # Falls back to system ChromeDriver (must be in PATH)
+        return webdriver.Chrome(options=options)
 
 
 def authenticate_naukri_gulf(email: str, password: str, headless: bool = True) -> webdriver.Chrome:
