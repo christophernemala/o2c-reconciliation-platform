@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from flask import Flask, jsonify, render_template, request
 
 from job_agent.config import get_runtime_config_snapshot
@@ -69,4 +70,5 @@ def create_application():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    port = int(os.environ.get("PORT", 5001))
+    app.run(debug=False, host="0.0.0.0", port=port)
