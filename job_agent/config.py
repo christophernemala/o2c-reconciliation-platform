@@ -66,11 +66,13 @@ NAUKRI_GULF_CREDENTIALS = {
 
 JOB_SEARCH_PREFERENCES = {
     "target_roles": [
-        "Credit & Collections Executive",
-        "AR Specialist",
-        "O2C Specialist",
-        "Finance Executive",
-        "Accounts Receivable Manager",
+        "Senior AR Specialist",
+        "AR Executive",
+        "Assistant Manager O2C",
+        "Assistant Manager AR",
+        "Credit Control Executive",
+        "Collections Assistant Manager",
+        "Collections Team Leader",
     ],
     "target_industries": [
         "Real Estate",
@@ -79,7 +81,7 @@ JOB_SEARCH_PREFERENCES = {
         "FMCG",
         "Retail",
     ],
-    "target_locations": ["Dubai", "Abu Dhabi", "Sharjah", "UAE"],
+    "target_locations": ["Dubai", "Abu Dhabi", "Ajman"],
     "minimum_salary_aed": 12000,
     "experience_level": "Mid-Senior Level (5-7 years)",
 }
