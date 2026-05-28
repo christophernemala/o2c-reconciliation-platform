@@ -21,7 +21,6 @@ jobs:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       JOB_AGENT_MAX_JOBS: "40"
       JOB_AGENT_MIN_SCORE_TO_SAVE: "65"
-      JOB_AGENT_DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
 
     steps:
       - name: Checkout repository
@@ -44,6 +43,17 @@ jobs:
       - name: Run smoke test
         run: |
           python job_agent/smoke_test.py
+
+      - name: Determine dry-run mode
+        id: check_secrets
+        run: |
+          if [ -z "$NOTION_API_KEY" ] || { [ -z "$NOTION_DATABASE_ID" ] && [ -z "$NOTION_DATA_SOURCE_ID" ]; }; then
+            echo "JOB_AGENT_DRY_RUN=true" >> $GITHUB_ENV
+            echo "⚠️  Notion secrets not set — running in dry-run mode (no Notion sync)."
+          else
+            DRY_RUN_INPUT="${{ github.event.inputs.dry_run || 'false' }}"
+            echo "JOB_AGENT_DRY_RUN=$DRY_RUN_INPUT" >> $GITHUB_ENV
+          fi
 
       - name: Run discovery agent
         run: |
