@@ -33,4 +33,4 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           JOB_AGENT_MAX_JOBS: "40"
           JOB_AGENT_MIN_SCORE_TO_SAVE: "65"
-        run: python job_agent/discovery_agent.py
+        run: python -m job_agent.discovery_agent
